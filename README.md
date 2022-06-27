@@ -1,6 +1,6 @@
 # CMake Wrapper of implementation "Isosurfaces Over Simplicial Partitions of Multiresolution Grids"
 
-This is a cmake wrapper of Josiah Manson's source code of the paper "Isosurfaces Over Simplicial Partitions of Multiresolution Grids". this method is super nice and solve almost every desired properties of iso-surface generation: 
+This is a cmake wrapper of Josiah Manson's source code of the paper "Isosurfaces Over Simplicial Partitions of Multiresolution Grids". This method is super nice and solve almost every desired properties of iso-surface generation: 
 
 - Intersection-free
 - Manifold
