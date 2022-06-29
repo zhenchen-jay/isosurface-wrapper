@@ -66,14 +66,14 @@ struct TNode
 
 	bool is_outside(vect3f &mine, vect3f &maxe)
 	{
-		if (maxe[0] - mine[0] < 1.5)
+		/*if (maxe[0] - mine[0] < 1.5)
 		{
 			for (int i = 0; i < 3; i++)
 			{
 				if (mine[i] < 0 || maxe[i] > 1)
 					return true;
 			}
-		}
+		}*/
 
 		return false;
 	}
@@ -138,6 +138,11 @@ struct TNode
 			{
 				for (int z = 0; z <= OVERSAMPLE_QEF; z++)
 				{
+					if (x == 0 && y == 1 && z == 1)
+					{
+						int test = 1;
+					}
+
 					vect4f p;
 					p[0] = (1 - float(x)/OVERSAMPLE_QEF)*verts[0][0] + (float(x)/OVERSAMPLE_QEF)*verts[7][0];
 					p[1] = (1 - float(y)/OVERSAMPLE_QEF)*verts[0][1] + (float(y)/OVERSAMPLE_QEF)*verts[7][1];
@@ -149,6 +154,21 @@ struct TNode
 					pl[4] = -(p[0]*pl[0] + p[1]*pl[1] + p[2]*pl[2]) + p[3]; // -p*n
 
 					q.combineSelf(vect5d(pl).v);
+
+					ArrayWrapper<double, 4> tmpA;
+					double tmpB[4];
+
+					for (int i = 0; i < 4; i++)
+					{
+						int index = ((2 * 4 + 3 - i) * i) / 2;
+						for (int j = i; j < 4; j++)
+						{
+							tmpA.data[i][j] = q.data[index + j - i];
+							tmpA.data[j][i] = tmpA.data[i][j];
+						}
+
+						tmpB[i] = -q.data[index + 4 - i];
+					}
 
 					mid += p;
 

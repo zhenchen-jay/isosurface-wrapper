@@ -46,31 +46,49 @@ void gen_iso_ours()
 	double t_finish = get_time();
 	printf("Time generating tree = %f\n", t_finish - t_start);
 
+	// extract surface
+	m->tris.reserve(1000000);
+	VisitorExtract v(m);
+	TraversalData td(root);
+	traverse_node<trav_edge>(v, td);
 
-	if (guide)
-	{
-		// extract surface
-		m->tris.reserve(1000000);
-		VisitorExtract v(m);
-		TraversalData td(root);
-		traverse_node<trav_edge>(v, td);
-		
-		double t_alldone = get_time();
-		printf("Time generating polygons = %f\n", t_alldone - t_finish);
-		printf("Time total = %f\n", t_alldone - t_start);
+	double t_alldone = get_time();
+	printf("Time generating polygons = %f\n", t_alldone - t_finish);
+	printf("Time total = %f\n", t_alldone - t_start);
 
-		// calc normals
-		m->norms.resize(m->tris.size());
-		for (int i = 0; i < m->tris.size(); i++)
-		{
-			m->norms[i] = (m->tris[i][1] - m->tris[i][0]) % (m->tris[i][2] - m->tris[i][0]);
-			m->norms[i].normalize();
-		}
-	}
-	else
+	// calc normals
+	m->norms.resize(m->tris.size());
+	for (int i = 0; i < m->tris.size(); i++)
 	{
-		printf("Cells in tree = %d\n", tree_cells);
+		m->norms[i] = (m->tris[i][1] - m->tris[i][0]) % (m->tris[i][2] - m->tris[i][0]);
+		m->norms[i].normalize();
 	}
+
+
+	//if (guide)
+	//{
+	//	// extract surface
+	//	m->tris.reserve(1000000);
+	//	VisitorExtract v(m);
+	//	TraversalData td(root);
+	//	traverse_node<trav_edge>(v, td);
+	//	
+	//	double t_alldone = get_time();
+	//	printf("Time generating polygons = %f\n", t_alldone - t_finish);
+	//	printf("Time total = %f\n", t_alldone - t_start);
+
+	//	// calc normals
+	//	m->norms.resize(m->tris.size());
+	//	for (int i = 0; i < m->tris.size(); i++)
+	//	{
+	//		m->norms[i] = (m->tris[i][1] - m->tris[i][0]) % (m->tris[i][2] - m->tris[i][0]);
+	//		m->norms[i].normalize();
+	//	}
+	//}
+	//else
+	//{
+	//	printf("Cells in tree = %d\n", tree_cells);
+	//}
 }
 
 bool TNode::changesSign(vect4f *verts, vect4f *edges, vect4f *faces, vect4f &node)
@@ -107,6 +125,9 @@ bool TNode::changesSign(vect4f *verts, vect4f *edges, vect4f *faces, vect4f &nod
 void TNode::eval(vect3f *grad, TNode *guide)
 {
 	float qef_error = 0;
+	if (std::abs(verts[0][0] - 0.5) < 1e-6 && std::abs(verts[0][1] - 0.25) < 1e-6 && std::abs(verts[0][2] - 0.5) < 1e-6
+		&& std::abs(verts[7][0] - 0.75) < 1e-6 && std::abs(verts[7][1] - 0.5) < 1e-6 && std::abs(verts[7][2] - 0.75) < 1e-6)
+		std::cout << "debug" << std::endl;
 
 	if (!guide || (guide && guide->children[0] == 0))
 	{
