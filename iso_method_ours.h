@@ -6,7 +6,6 @@
 #include "vect.h"
 #include "qefnorm.h"
 #include "cube_arrays.h"
-#include <float.h>
 #include "rootfind.h"
 #include "csgtree.h"
 
@@ -24,22 +23,22 @@ struct TNode
 		defoliate();
 	}
 
-	vect4f verts[8];
-	vect4f edges[12];
-	vect4f faces[6];
-	vect4f node;
+	vect4d verts[8];
+	vect4d edges[12];
+	vect4d faces[6];
+	vect4d node;
 
 	TNode *children[8];
 
-	bool changesSign(vect4f *verts, vect4f *edges, vect4f *faces, vect4f &node);
+	bool changesSign(vect4d *verts, vect4d *edges, vect4d *faces, vect4d &node);
 
-	void eval(vect3f *grad, TNode *guide);
+	void eval(vect3d *grad, TNode *guide);
 	bool changesSign(){return changesSign(verts, edges, faces, node);}
 
 
 	void defoliate();
 
-	bool contains(vect3f &p)
+	bool contains(vect3d &p)
 	{
 		for (int i = 0; i < 3; i++)
 		{
@@ -62,9 +61,9 @@ struct TNode
 
 		return false;
 	}*/
-	bool is_outside(){return is_outside((vect3f&)verts[0], (vect3f&)verts[7]);}
+	bool is_outside(){return is_outside((vect3d&)verts[0], (vect3d&)verts[7]);}
 
-	bool is_outside(vect3f &mine, vect3f &maxe)
+	bool is_outside(vect3d &mine, vect3d &maxe)
 	{
 		if (maxe[0] - mine[0] < 1.5)
 		{
@@ -111,26 +110,26 @@ struct TNode
 
 
 	// NODES
-	void vertNode(vect4f &p, vect3f *grad, float &qef_error, vect3f *ev = 0, int *ns_size = 0)
+	void vertNode(vect4d &p, vect3d *grad, double &qef_error, vect3d *ev = 0, int *ns_size = 0)
 	{
 		// debug
-		vect3f mid_debug = 0;
+		vect3d mid_debug = 0;
 		for (int i = 0; i < 8; i++)
 		{
-			vect4f &p4 = verts[i];
+			vect4d &p4 = verts[i];
 			mid_debug += p4;
 		}
 		mid_debug *= .125;
 		bool do_debug = false;
 
 		// build QEF
-		//float cellsize = verts[7][0] - verts[0][0];
+		//double cellsize = verts[7][0] - verts[0][0];
 		QEFNormal<double, 4> q;
 		q.zero();
 
-		vect4f mid = 0;
+		vect4d mid = 0;
 
-		vector<vect4f> plane_norms, plane_pts;
+		vector<vect4d> plane_norms, plane_pts;
 
 		for (int x = 0; x <= OVERSAMPLE_QEF; x++)
 		{
@@ -138,13 +137,13 @@ struct TNode
 			{
 				for (int z = 0; z <= OVERSAMPLE_QEF; z++)
 				{
-					vect4f p;
-					p[0] = (1 - float(x)/OVERSAMPLE_QEF)*verts[0][0] + (float(x)/OVERSAMPLE_QEF)*verts[7][0];
-					p[1] = (1 - float(y)/OVERSAMPLE_QEF)*verts[0][1] + (float(y)/OVERSAMPLE_QEF)*verts[7][1];
-					p[2] = (1 - float(z)/OVERSAMPLE_QEF)*verts[0][2] + (float(z)/OVERSAMPLE_QEF)*verts[7][2];
+					vect4d p;
+					p[0] = (1 - double(x)/OVERSAMPLE_QEF)*verts[0][0] + (double(x)/OVERSAMPLE_QEF)*verts[7][0];
+					p[1] = (1 - double(y)/OVERSAMPLE_QEF)*verts[0][1] + (double(y)/OVERSAMPLE_QEF)*verts[7][1];
+					p[2] = (1 - double(z)/OVERSAMPLE_QEF)*verts[0][2] + (double(z)/OVERSAMPLE_QEF)*verts[7][2];
 
-					vect5f pl;
-					csg_root->eval((vect3f&)p, p[3], (vect3f&)pl);
+					vect5d pl;
+					csg_root->eval((vect3d&)p, p[3], (vect3d&)pl);
 					pl[3] = -1;
 					pl[4] = -(p[0]*pl[0] + p[1]*pl[1] + p[2]*pl[2]) + p[3]; // -p*n
 
@@ -153,7 +152,7 @@ struct TNode
 					mid += p;
 
 					plane_pts.push_back(p);
-					plane_norms.push_back(vect4f(pl[0], pl[1], pl[2], -1));
+					plane_norms.push_back(vect4d(pl[0], pl[1], pl[2], -1));
 				}
 			}
 		}
@@ -181,11 +180,11 @@ struct TNode
 		}
 
 		// minimize QEF constrained to cell
-		const float border = BORDER * (verts[7][0]-verts[0][0]);
+		const double border = BORDER * (verts[7][0]-verts[0][0]);
 		bool is_out = true;
 		double err = 1e30;
-		vect3f mine(verts[0][0] + border, verts[0][1] + border, verts[0][2] + border);
-		vect3f maxe(verts[7][0] - border, verts[7][1] - border, verts[7][2] - border);
+		vect3d mine(verts[0][0] + border, verts[0][1] + border, verts[0][2] + border);
+		vect3d maxe(verts[7][0] - border, verts[7][1] - border, verts[7][2] - border);
 
 		for (int cell_dim = 3; cell_dim >= 0 && is_out; cell_dim--)
 		{
@@ -221,7 +220,7 @@ struct TNode
 				{
 					int dir = face / 2;
 					int side = face % 2;
-					vect3f corners[2] = {mine, maxe};
+					vect3d corners[2] = {mine, maxe};
 
 					// build constrained system
 					ArrayWrapper<double, n+1> AC;
@@ -251,7 +250,7 @@ struct TNode
 							rvalue [ i ] += inv.data [ j ] [ i ] * BC [ j ];
 					}
 
-					vect4f pc(rvalue[0], rvalue[1], rvalue[2], rvalue[3]);
+					vect4d pc(rvalue[0], rvalue[1], rvalue[2], rvalue[3]);
 				
 					// check bounds
 					int dp = (dir+1)%3;
@@ -275,7 +274,7 @@ struct TNode
 				{
 					int dir = edge / 4;
 					int side = edge % 4;
-					vect3f corners[2] = {mine, maxe};
+					vect3d corners[2] = {mine, maxe};
 
 					// build constrained system
 					ArrayWrapper<double, n+2> AC;
@@ -309,7 +308,7 @@ struct TNode
 							rvalue [ i ] += inv.data [ j ] [ i ] * BC [ j ];
 					}
 
-					vect4f pc(rvalue[0], rvalue[1], rvalue[2], rvalue[3]);
+					vect4d pc(rvalue[0], rvalue[1], rvalue[2], rvalue[3]);
 				
 					// check bounds
 					if (pc[dir] >= mine[dir] && pc[dir] <= maxe[dir])
@@ -328,7 +327,7 @@ struct TNode
 			{
 				for (int vertex = 0; vertex < 8; vertex++)
 				{
-					vect3f corners[2] = {mine, maxe};
+					vect3d corners[2] = {mine, maxe};
 
 					// build constrained system
 					ArrayWrapper<double, n+3> AC;
@@ -360,7 +359,7 @@ struct TNode
 							rvalue [ i ] += inv.data [ j ] [ i ] * BC [ j ];
 					}
 
-					vect4f pc(rvalue[0], rvalue[1], rvalue[2], rvalue[3]);
+					vect4d pc(rvalue[0], rvalue[1], rvalue[2], rvalue[3]);
 				
 					// check bounds
 					double e = calcError(pc, plane_norms, plane_pts);
@@ -374,7 +373,7 @@ struct TNode
 		}
 
 		// eval
-		//float qef_val = p[3];
+		//double qef_val = p[3];
 		fun(p);
 		//err = fabs(qef_val - p[3]);
 
@@ -395,13 +394,13 @@ struct TNode
 	}
 
 	// FACES
-	void vertFace(vect4f &p, vect3f *grad, float &qef_error, int which_face, vect3f *ev = 0)
+	void vertFace(vect4d &p, vect3d *grad, double &qef_error, int which_face, vect3d *ev = 0)
 	{
 		//// debug
-		//vect3f mid_debug = 0;
+		//vect3d mid_debug = 0;
 		//for (int i = 0; i < 4; i++)
 		//{
-		//	vect4f &p4 = verts[cube_face2vert[which_face][i]];
+		//	vect4d &p4 = verts[cube_face2vert[which_face][i]];
 		//	mid_debug += p4;
 		//}
 		//mid_debug *= .25;
@@ -410,7 +409,7 @@ struct TNode
 		//	do_debug = true;
 
 		// build QEF
-		//float cellsize = verts[7][0] - verts[0][0];
+		//double cellsize = verts[7][0] - verts[0][0];
 		int xi = (cube_face2orient[which_face] + 1) % 3;
 		int yi = (cube_face2orient[which_face] + 2) % 3;
 		int zi = cube_face2orient[which_face];
@@ -418,25 +417,25 @@ struct TNode
 		QEFNormal<double, 3> q;
 		q.zero();
 
-		vect3f mid = 0;
+		vect3d mid = 0;
 
-		vector<vect3f> plane_norms, plane_pts;
+		vector<vect3d> plane_norms, plane_pts;
 
-		vect4f &c0 = verts[cube_face2vert[which_face][0]], &c1 = verts[cube_face2vert[which_face][2]];
+		vect4d &c0 = verts[cube_face2vert[which_face][0]], &c1 = verts[cube_face2vert[which_face][2]];
 		for (int x = 0; x <= OVERSAMPLE_QEF; x++)
 		{
 			for (int y = 0; y <= OVERSAMPLE_QEF; y++)
 			{
-				vect4f p4;
-				p4[xi] = (1 - float(x)/OVERSAMPLE_QEF)*c0[xi] + (float(x)/OVERSAMPLE_QEF)*c1[xi];
-				p4[yi] = (1 - float(y)/OVERSAMPLE_QEF)*c0[yi] + (float(y)/OVERSAMPLE_QEF)*c1[yi];
+				vect4d p4;
+				p4[xi] = (1 - double(x)/OVERSAMPLE_QEF)*c0[xi] + (double(x)/OVERSAMPLE_QEF)*c1[xi];
+				p4[yi] = (1 - double(y)/OVERSAMPLE_QEF)*c0[yi] + (double(y)/OVERSAMPLE_QEF)*c1[yi];
 				p4[zi] = c0[zi];
 
-				vect3f n4;
-				csg_root->eval((vect3f&)p4, p4[3], (vect3f&)n4);
-				vect3f n3(n4[xi], n4[yi], -1);
-				vect3f p3(p4[xi], p4[yi], p4[3]);
-				vect4f pl = n3;
+				vect3d n4;
+				csg_root->eval((vect3d&)p4, p4[3], (vect3d&)n4);
+				vect3d n3(n4[xi], n4[yi], -1);
+				vect3d p3(p4[xi], p4[yi], p4[3]);
+				vect4d pl = n3;
 				pl[3] = -(p3*n3);	
 
 			q.combineSelf(vect4d(pl).v);
@@ -467,12 +466,12 @@ struct TNode
 		}
 
 		// minimize QEF constrained to cell
-		const float border = BORDER * (verts[7][0]-verts[0][0]);
+		const double border = BORDER * (verts[7][0]-verts[0][0]);
 		bool is_out = true;
 		double err = 1e30;
 		vect2f mine(verts[cube_face2vert[which_face][0]][xi] + border, verts[cube_face2vert[which_face][0]][yi] + border);
 		vect2f maxe(verts[cube_face2vert[which_face][2]][xi] - border, verts[cube_face2vert[which_face][2]][yi] - border);
-		vect3f p3;
+		vect3d p3;
 
 		for (int cell_dim = 2; cell_dim >= 0 && is_out; cell_dim--)
 		{
@@ -537,7 +536,7 @@ struct TNode
 							rvalue [ i ] += inv.data [ j ] [ i ] * BC [ j ];
 					}
 
-					vect4f pc(rvalue[0], rvalue[1], rvalue[2]);
+					vect4d pc(rvalue[0], rvalue[1], rvalue[2]);
 				
 					// check bounds
 					int dp = (dir+1)%2;
@@ -589,7 +588,7 @@ struct TNode
 							rvalue [ i ] += inv.data [ j ] [ i ] * BC [ j ];
 					}
 
-					vect3f pc(rvalue[0], rvalue[1], rvalue[2]);
+					vect3d pc(rvalue[0], rvalue[1], rvalue[2]);
 				
 					// check bounds
 					double e = calcError(pc, plane_norms, plane_pts);
@@ -634,13 +633,13 @@ struct TNode
 
 
 	// EDGES
-	void vertEdge(vect4f &p, vect3f *grad, float &qef_error, int which_edge)
+	void vertEdge(vect4d &p, vect3d *grad, double &qef_error, int which_edge)
 	{
 		//// debug
-		//vect3f mid_debug = 0;
+		//vect3d mid_debug = 0;
 		//for (int i = 0; i < 2; i++)
 		//{
-		//	vect4f &p4 = verts[cube_edge2vert[which_edge][i]];
+		//	vect4d &p4 = verts[cube_edge2vert[which_edge][i]];
 		//	mid_debug += p4;
 		//}
 		//mid_debug *= .5;
@@ -649,7 +648,7 @@ struct TNode
 		//	do_debug = true;
 
 		// calc QEF
-		//float cellsize = verts[7][0] - verts[0][0];
+		//double cellsize = verts[7][0] - verts[0][0];
 		int xi = cube_edge2orient[which_edge];
 		int yi = (cube_edge2orient[which_edge] + 1) % 3;
 		int zi = (cube_edge2orient[which_edge] + 2) % 3;
@@ -661,19 +660,19 @@ struct TNode
 
 		vector<vect2f> plane_norms, plane_pts;
 
-		vect4f &c0 = verts[cube_edge2vert[which_edge][0]], &c1 = verts[cube_edge2vert[which_edge][1]];
+		vect4d &c0 = verts[cube_edge2vert[which_edge][0]], &c1 = verts[cube_edge2vert[which_edge][1]];
 		for (int i = 0; i <= OVERSAMPLE_QEF; i++)
 		{
-			vect4f p4;
-			p4[xi] = (1 - float(i)/OVERSAMPLE_QEF)*c0[xi] + (float(i)/OVERSAMPLE_QEF)*c1[xi];
+			vect4d p4;
+			p4[xi] = (1 - double(i)/OVERSAMPLE_QEF)*c0[xi] + (double(i)/OVERSAMPLE_QEF)*c1[xi];
 			p4[yi] = c0[yi];
 			p4[zi] = c0[zi];
 
-			vect3f g3;
-			csg_root->eval((vect3f&)p4, p4[3], (vect3f&)g3);
+			vect3d g3;
+			csg_root->eval((vect3d&)p4, p4[3], (vect3d&)g3);
 			vect2f n2(g3[xi], -1);
 			vect2f p2(p4[xi], p4[3]);
-			vect3f pl = n2;
+			vect3d pl = n2;
 			pl[2] = -(p2*n2);
 
 			q.combineSelf(vect3d(pl).v);
@@ -703,11 +702,11 @@ struct TNode
 		}
 
 		// minimize QEF constrained to cell
-		const float border = BORDER * (verts[7][0]-verts[0][0]);
+		const double border = BORDER * (verts[7][0]-verts[0][0]);
 		bool is_out = true;
 		double err = 1e30;
-		const float vmin = verts[cube_edge2vert[which_edge][0]][xi] + border;
-		const float vmax = verts[cube_edge2vert[which_edge][1]][xi] - border;
+		const double vmin = verts[cube_edge2vert[which_edge][0]][xi] + border;
+		const double vmax = verts[cube_edge2vert[which_edge][1]][xi] - border;
 		vect2f p2;
 
 		for (int cell_dim = 1; cell_dim >= 0 && is_out; cell_dim--)
@@ -740,7 +739,7 @@ struct TNode
 			{
 				for (int vertex = 0; vertex < 2; vertex++)
 				{
-					float corners[2] = {vmin, vmax};
+					double corners[2] = {vmin, vmax};
 
 					// build constrained system
 					ArrayWrapper<double, n+1> AC;

@@ -25,14 +25,14 @@ using namespace std;
 struct TopoEdge
 {
 	TopoEdge(){}
-	TopoEdge(vect3f &c, vect3f &d)
+	TopoEdge(vect3d &c, vect3d &d)
 	{
 		v[0] = c;
 		v[1] = d;
 		fix();
 	}
 
-	vect3f v[2];
+	vect3d v[2];
 
 	void fix()
 	{
@@ -63,8 +63,8 @@ struct VisitorExtract
 	bool on_face(TraversalData &td0, TraversalData &td1, char orient);
 
 #ifdef JOIN_VERTS
-	void processTet(vect4f *p, vect3f *topo);
+	void processTet(vect4d *p, vect3d *topo);
 #else
-	void processTet(vect4f *p);
+	void processTet(vect4d *p);
 #endif
 };

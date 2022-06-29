@@ -10,7 +10,7 @@ using namespace std;
 
 struct CSGNode
 {
-	virtual void eval(vect3f &pt, float &val, vect3f &grad) = 0;
+	virtual void eval(vect3d &pt, double &val, vect3d &grad) = 0;
 };
 
 struct CSGMax : public CSGNode
@@ -21,10 +21,10 @@ struct CSGMax : public CSGNode
 		n2 = b;
 	}
 
-	virtual void eval(vect3f &pt, float &val, vect3f &grad)
+	virtual void eval(vect3d &pt, double &val, vect3d &grad)
 	{
-		vect3f g1, g2;
-		float v1, v2;
+		vect3d g1, g2;
+		double v1, v2;
 
 		n1->eval(pt, v1, g1);
 		n2->eval(pt, v2, g2);
@@ -52,10 +52,10 @@ struct CSGMin : public CSGNode
 		n2 = b;
 	}
 
-	virtual void eval(vect3f &pt, float &val, vect3f &grad)
+	virtual void eval(vect3d &pt, double &val, vect3d &grad)
 	{
-		vect3f g1, g2;
-		float v1, v2;
+		vect3d g1, g2;
+		double v1, v2;
 
 		n1->eval(pt, v1, g1);
 		n2->eval(pt, v2, g2);
@@ -83,10 +83,10 @@ struct CSGDiff : public CSGNode
 		n2 = b;
 	}
 
-	virtual void eval(vect3f &pt, float &val, vect3f &grad)
+	virtual void eval(vect3d &pt, double &val, vect3d &grad)
 	{
-		vect3f g1, g2;
-		float v1, v2;
+		vect3d g1, g2;
+		double v1, v2;
 
 		n1->eval(pt, v1, g1);
 		n2->eval(pt, v2, g2);
@@ -115,7 +115,7 @@ struct CSGNeg : public CSGNode
 		n = a;
 	}
 
-	virtual void eval(vect3f &pt, float &val, vect3f &grad)
+	virtual void eval(vect3d &pt, double &val, vect3d &grad)
 	{
 		n->eval(pt, val, grad);
 		val = -val;
@@ -127,15 +127,15 @@ struct CSGNeg : public CSGNode
 
 struct CSGPlane : public CSGNode
 {
-	CSGPlane(vect3f p, vect3f n)
+	CSGPlane(vect3d p, vect3d n)
 	{
 		pos = p;
 		norm = ~n;
 	}
 
-	vect3f pos, norm;
+	vect3d pos, norm;
 
-	virtual void eval(vect3f &pt, float &val, vect3f &grad)
+	virtual void eval(vect3d &pt, double &val, vect3d &grad)
 	{
 		grad = norm;
 		val = (pt - pos) * norm;
@@ -144,19 +144,19 @@ struct CSGPlane : public CSGNode
 
 struct CSGSphere : public CSGNode
 {
-	CSGSphere(vect3f p, float r)
+	CSGSphere(vect3d p, double r)
 	{
 		pos = p;
 		radius = r;
 	}
 
-	vect3f pos;
-	float radius;
+	vect3d pos;
+	double radius;
 
-	virtual void eval(vect3f &pt, float &val, vect3f &grad)
+	virtual void eval(vect3d &pt, double &val, vect3d &grad)
 	{
-		vect3f d = pt - pos;
-		float len = d.length();
+		vect3d d = pt - pos;
+		double len = d.length();
 		if (len > 1e-9)
 			grad = -d / len;
 		else
@@ -167,23 +167,23 @@ struct CSGSphere : public CSGNode
 
 struct CSGTorus : public CSGNode
 {
-	CSGTorus(vect3f p, float r1, float r2)
+	CSGTorus(vect3d p, double r1, double r2)
 	{
 		pos = p;
 		R1 = r1*r1;
 		R2 = r2*r2;
 	}
 
-	vect3f pos;
-	float R1, R2;
+	vect3d pos;
+	double R1, R2;
 
-	virtual void eval(vect3f &pt, float &val, vect3f &grad)
+	virtual void eval(vect3d &pt, double &val, vect3d &grad)
 	{
-		float x = pt[0] - pos[0];
-		float y = pt[1] - pos[1];
-		float z = pt[2] - pos[2];
+		double x = pt[0] - pos[0];
+		double y = pt[1] - pos[1];
+		double z = pt[2] - pos[2];
 
-		float a = x*x + y*y + z*z + R1 - R2;
+		double a = x*x + y*y + z*z + R1 - R2;
 		val = -a*a + 4*R1*(x*x + y*y);
 
 		grad[0] = 8*R1*x - 4*x*a;
@@ -194,21 +194,21 @@ struct CSGTorus : public CSGNode
 
 struct CSGCylinder : public CSGNode
 {
-	CSGCylinder(vect3f p, vect3f d, float r)
+	CSGCylinder(vect3d p, vect3d d, double r)
 	{
 		dir = ~d;
 		pos = p;
 		radius = r;
 	}
 
-	vect3f pos, dir;
-	float radius;
+	vect3d pos, dir;
+	double radius;
 
-	virtual void eval(vect3f &pt, float &val, vect3f &grad)
+	virtual void eval(vect3d &pt, double &val, vect3d &grad)
 	{
-		vect3f v = pt - pos;
-		vect3f d = v - dir*(v*dir);
-		float l = d.length();
+		vect3d v = pt - pos;
+		vect3d d = v - dir*(v*dir);
+		double l = d.length();
 		if (l > 1e-9)
 			grad = -d / l;
 		else

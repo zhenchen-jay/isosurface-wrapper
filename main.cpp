@@ -47,7 +47,7 @@ void writeFile(Mesh &m, string fn)
 
 				vt[m.topoTris[i][j]] = vert_num;
 				
-				vect3f pos = m.tris[i][j];
+				vect3d pos = m.tris[i][j];
 				fprintf(f, "v %f %f %f\n", pos[0], pos[1], pos[2]);
 			}
 		}
@@ -103,7 +103,7 @@ static void convert2EigenMesh(Mesh &m, Eigen::MatrixXd& V, Eigen::MatrixXi& F)
 
 				vt[m.topoTris[i][j]] = vert_num;
 
-				vect3f pos = m.tris[i][j];
+				vect3d pos = m.tris[i][j];
 				posList.push_back(Eigen::Vector3d(pos[0], pos[1], pos[2]));
 			}
 		}
@@ -146,42 +146,42 @@ void init()
 	{
 		CSGNode *n;
 
-//		n = new CSGMax(new CSGPlane(vect3f(.7,.7,.7 - .05), -~vect3f(1,1,1)),new CSGPlane(vect3f(.7,.7,.7), ~vect3f(1,1,1))); // used for dc topology figure depth 5 inverted
-		//n = new CSGMin(new CSGPlane(vect3f(.7,.7,.7), -~vect3f(1,1,1)),new CSGPlane(vect3f(.7,.7,.7 - .05), ~vect3f(1,1,1))); // used for dc topology figure depth 5
-//		n = new CSGSphere(vect3f(.5, .5, .5), .4);
-//		n = new CSGTorus(vect3f(.5, .5, .5), .3, .1);
-//		n = new CSGMin(new CSGSphere(vect3f(.5, .6, .35 - .01), .25),new CSGSphere(vect3f(.5, .5, .65 - .01), .25));
-		//n = new CSGMax(new CSGSphere(vect3f(.5, .5, .3 - .05), .2),new CSGSphere(vect3f(.5, .5, .7 - .05), .2));
-		//n = new CSGMin(new CSGSphere(vect3f(.5, .5, .65), .25),new CSGNeg(new CSGCylinder(vect3f(.5, .5, .35), vect3f(0,0,1), .15)));
-		//n = new CSGMin(	new CSGSphere(vect3f(.5, .5, .5), .4),	new CSGPlane(vect3f(.65, .65, .55), vect3f(0,0,1))	);
-		//n = new CSGPlane(vect3f(.65, .65, .65), vect3f(.2,.4,-1));
+//		n = new CSGMax(new CSGPlane(vect3d(.7,.7,.7 - .05), -~vect3d(1,1,1)),new CSGPlane(vect3d(.7,.7,.7), ~vect3d(1,1,1))); // used for dc topology figure depth 5 inverted
+		//n = new CSGMin(new CSGPlane(vect3d(.7,.7,.7), -~vect3d(1,1,1)),new CSGPlane(vect3d(.7,.7,.7 - .05), ~vect3d(1,1,1))); // used for dc topology figure depth 5
+//		n = new CSGSphere(vect3d(.5, .5, .5), .4);
+//		n = new CSGTorus(vect3d(.5, .5, .5), .3, .1);
+//		n = new CSGMin(new CSGSphere(vect3d(.5, .6, .35 - .01), .25),new CSGSphere(vect3d(.5, .5, .65 - .01), .25));
+		//n = new CSGMax(new CSGSphere(vect3d(.5, .5, .3 - .05), .2),new CSGSphere(vect3d(.5, .5, .7 - .05), .2));
+		//n = new CSGMin(new CSGSphere(vect3d(.5, .5, .65), .25),new CSGNeg(new CSGCylinder(vect3d(.5, .5, .35), vect3d(0,0,1), .15)));
+		//n = new CSGMin(	new CSGSphere(vect3d(.5, .5, .5), .4),	new CSGPlane(vect3d(.65, .65, .55), vect3d(0,0,1))	);
+		//n = new CSGPlane(vect3d(.65, .65, .65), vect3d(.2,.4,-1));
 
 		// figure of interesting shapes in one cell
-//		n = new CSGSphere(vect3f(.85, .25, .25), .1);
-//		n = new CSGCylinder(vect3f(.85, .25, .25), vect3f(0,0,1), .1);
-//		n = new CSGCylinder(vect3f(.85, .25, .25), ~vect3f(0.1,.7,.7), .1);
-//		n = new CSGMax(new CSGPlane(vect3f(.75, .65, .15), -~vect3f(0,.5,1)),new CSGPlane(vect3f(.75, .65, .15), ~vect3f(0,0,1)));
+//		n = new CSGSphere(vect3d(.85, .25, .25), .1);
+//		n = new CSGCylinder(vect3d(.85, .25, .25), vect3d(0,0,1), .1);
+//		n = new CSGCylinder(vect3d(.85, .25, .25), ~vect3d(0.1,.7,.7), .1);
+//		n = new CSGMax(new CSGPlane(vect3d(.75, .65, .15), -~vect3d(0,.5,1)),new CSGPlane(vect3d(.75, .65, .15), ~vect3d(0,0,1)));
 //		n = new CSGMax(
-//			new CSGPlane(vect3f(.75, .65, .15), -~vect3f(0,0,1)),
-//			new CSGPlane(vect3f(.75, .65, .15), ~vect3f(0.5,0,1))
+//			new CSGPlane(vect3d(.75, .65, .15), -~vect3d(0,0,1)),
+//			new CSGPlane(vect3d(.75, .65, .15), ~vect3d(0.5,0,1))
 //			);
 //		n = new CSGMax(new CSGMax(
-//			new CSGPlane(vect3f(.35, .25, .35), -~vect3f(0,.5,1)),
-//			new CSGPlane(vect3f(.35, .25, .35), ~vect3f(0,0,1))),
-//			new CSGPlane(vect3f(.35, .25, .35), -~vect3f(.5,0,1)) );
+//			new CSGPlane(vect3d(.35, .25, .35), -~vect3d(0,.5,1)),
+//			new CSGPlane(vect3d(.35, .25, .35), ~vect3d(0,0,1))),
+//			new CSGPlane(vect3d(.35, .25, .35), -~vect3d(.5,0,1)) );
 		
 		// draw box with things cut out (shifted) (mechanical part)
-		vect3f shift(.062151346, .0725234, .0412);
-		CSGNode *box = new CSGMin(new CSGMin(new CSGMin(new CSGPlane(vect3f(.3, .3, .3)+shift, vect3f(1,0,0)),
-					 new CSGPlane(vect3f(.3, .3, .3)+shift, vect3f(0,1,0)) ),
-				   new CSGMin(new CSGPlane(vect3f(.3, .3, .3)+shift, vect3f(0,0,1)),
-					new CSGPlane(vect3f(.7, .7, .7)+shift, vect3f(-1,0,0)) )),
-				   new CSGMin(new CSGPlane(vect3f(.7, .7, .7)+shift, vect3f(0,-1,0)),
-					new CSGPlane(vect3f(.7, .7, .7)+shift, vect3f(0,0,-1))));
-		n = new CSGMin(new CSGNeg(new CSGCylinder(vect3f(.5, .5, .5)+shift, vect3f(1,0,0), .15)),
-					new CSGMin(new CSGNeg(new CSGCylinder(vect3f(.5, .5, .5)+shift, vect3f(0,1,0), .15)),
-						new CSGMax(box, new CSGCylinder(vect3f(.5, .5, .5)+shift, vect3f(0,0,1), .15) ) )) ;
-		n = new CSGMin(n, new CSGMin(new CSGPlane(vect3f(0, 0, .9)+shift, vect3f(0,0,-1)), new CSGPlane(vect3f(0, 0, .1)+shift, vect3f(0,0,1))));
+		vect3d shift(.062151346, .0725234, .0412);
+		CSGNode *box = new CSGMin(new CSGMin(new CSGMin(new CSGPlane(vect3d(.3, .3, .3)+shift, vect3d(1,0,0)),
+					 new CSGPlane(vect3d(.3, .3, .3)+shift, vect3d(0,1,0)) ),
+				   new CSGMin(new CSGPlane(vect3d(.3, .3, .3)+shift, vect3d(0,0,1)),
+					new CSGPlane(vect3d(.7, .7, .7)+shift, vect3d(-1,0,0)) )),
+				   new CSGMin(new CSGPlane(vect3d(.7, .7, .7)+shift, vect3d(0,-1,0)),
+					new CSGPlane(vect3d(.7, .7, .7)+shift, vect3d(0,0,-1))));
+		n = new CSGMin(new CSGNeg(new CSGCylinder(vect3d(.5, .5, .5)+shift, vect3d(1,0,0), .15)),
+					new CSGMin(new CSGNeg(new CSGCylinder(vect3d(.5, .5, .5)+shift, vect3d(0,1,0), .15)),
+						new CSGMax(box, new CSGCylinder(vect3d(.5, .5, .5)+shift, vect3d(0,0,1), .15) ) )) ;
+		n = new CSGMin(n, new CSGMin(new CSGPlane(vect3d(0, 0, .9)+shift, vect3d(0,0,-1)), new CSGPlane(vect3d(0, 0, .1)+shift, vect3d(0,0,1))));
 
 		// $$$$$$ add it $$$$$$
 		csg_root = n;

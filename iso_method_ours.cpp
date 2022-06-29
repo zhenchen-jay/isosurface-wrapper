@@ -37,9 +37,9 @@ void gen_iso_ours()
 	for (Index i; i < 8; i++)
 		root->verts[i.v](int(i.x)*4-1, int(i.y)*4-1, int(i.z)*4-1);
 
-	vect3f grad[8];
+	vect3d grad[8];
 	for (Index i; i < 8; i++)
-		csg_root->eval(*(vect3f*)&root->verts[i], root->verts[i].v[3], grad[i]);
+		csg_root->eval(*(vect3d*)&root->verts[i], root->verts[i].v[3], grad[i]);
 	
 	root->eval(grad, guide);
 
@@ -73,7 +73,7 @@ void gen_iso_ours()
 	}
 }
 
-bool TNode::changesSign(vect4f *verts, vect4f *edges, vect4f *faces, vect4f &node)
+bool TNode::changesSign(vect4d *verts, vect4d *edges, vect4d *faces, vect4d &node)
 {
 	return  sign(verts[0]) != sign(verts[1]) || 
 			sign(verts[0]) != sign(verts[2]) || 
@@ -104,9 +104,9 @@ bool TNode::changesSign(vect4f *verts, vect4f *edges, vect4f *faces, vect4f &nod
 			sign(verts[0]) != sign(node);
 }
 
-void TNode::eval(vect3f *grad, TNode *guide)
+void TNode::eval(vect3d *grad, TNode *guide)
 {
-	float qef_error = 0;
+	double qef_error = 0;
 
 	if (!guide || (guide && guide->children[0] == 0))
 	{
@@ -124,13 +124,13 @@ void TNode::eval(vect3f *grad, TNode *guide)
 
 	if (!guide)
 	{
-		float cellsize = verts[7][0] - verts[0][0];
+		double cellsize = verts[7][0] - verts[0][0];
 
-		if (is_outside((vect3f&)verts[0], (vect3f&)verts[7]))
+		if (is_outside((vect3d&)verts[0], (vect3d&)verts[7]))
 			return;
 
 		// check max/min sizes of cells
-		static float minsize = pow(.5, DEPTH_MAX);
+		static double minsize = pow(.5, DEPTH_MAX);
 		bool issmall = cellsize <= minsize;
 		if (issmall)
 		{
@@ -139,7 +139,7 @@ void TNode::eval(vect3f *grad, TNode *guide)
 			return;
 		}
 
-		static float maxsize = pow(.5, DEPTH_MIN);
+		static double maxsize = pow(.5, DEPTH_MIN);
 		bool isbig = cellsize > maxsize;
 
 		// check for a sign change
@@ -165,8 +165,8 @@ void TNode::eval(vect3f *grad, TNode *guide)
 	if (recur)
 	{
 		// find points and function values in the subdivided cell
-		vect4f p[3][3][3];
-		vect3f g[3][3][3];
+		vect4d p[3][3][3];
+		vect3d g[3][3][3];
 		for (int x = 0; x < 3; x++)
 		{
 			for (int y = 0; y < 3; y++)
@@ -183,7 +183,7 @@ void TNode::eval(vect3f *grad, TNode *guide)
 								 verts[Index(1,1,1)]*(x)*(y)*(z) )*.125;
 
 					if (x == 1 || y == 1 || z == 1)
-						csg_root->eval(*(vect3f*)&p[x][y][z], p[x][y][z].v[3], g[x][y][z]);
+						csg_root->eval(*(vect3d*)&p[x][y][z], p[x][y][z].v[3], g[x][y][z]);
 					else
 						g[x][y][z] = grad[Index(x>>1,y>>1,z>>1)];
 				}

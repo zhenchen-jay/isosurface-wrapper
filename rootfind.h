@@ -8,7 +8,7 @@ template<class T>
 void fun(vect<4,T> &p)
 {
 	vect<3,T> g;
-	csg_root->eval(*(vect3f*)&p, p.v[3], g);
+	csg_root->eval(*(vect<3,T>*)&p, p.v[3], g);
 }
 
 template <class T>
