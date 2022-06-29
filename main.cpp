@@ -20,8 +20,8 @@
 
 int OVERSAMPLE_QEF = 4;
 double BORDER = (1.0 / 16.0);
-int DEPTH_MAX = 7; // 7
-int DEPTH_MIN = 4; // 4
+int DEPTH_MAX = 2; // 7
+int DEPTH_MIN = 1; // 4
 int FIND_ROOT_DEPTH = 0;
 
 
@@ -171,17 +171,39 @@ void init()
 //			new CSGPlane(vect3d(.35, .25, .35), -~vect3d(.5,0,1)) );
 		
 		// draw box with things cut out (shifted) (mechanical part)
-		vect3d shift(.062151346, .0725234, .0412);
-		CSGNode *box = new CSGMin(new CSGMin(new CSGMin(new CSGPlane(vect3d(.3, .3, .3)+shift, vect3d(1,0,0)),
-					 new CSGPlane(vect3d(.3, .3, .3)+shift, vect3d(0,1,0)) ),
-				   new CSGMin(new CSGPlane(vect3d(.3, .3, .3)+shift, vect3d(0,0,1)),
-					new CSGPlane(vect3d(.7, .7, .7)+shift, vect3d(-1,0,0)) )),
-				   new CSGMin(new CSGPlane(vect3d(.7, .7, .7)+shift, vect3d(0,-1,0)),
-					new CSGPlane(vect3d(.7, .7, .7)+shift, vect3d(0,0,-1))));
-		n = new CSGMin(new CSGNeg(new CSGCylinder(vect3d(.5, .5, .5)+shift, vect3d(1,0,0), .15)),
-					new CSGMin(new CSGNeg(new CSGCylinder(vect3d(.5, .5, .5)+shift, vect3d(0,1,0), .15)),
-						new CSGMax(box, new CSGCylinder(vect3d(.5, .5, .5)+shift, vect3d(0,0,1), .15) ) )) ;
-		n = new CSGMin(n, new CSGMin(new CSGPlane(vect3d(0, 0, .9)+shift, vect3d(0,0,-1)), new CSGPlane(vect3d(0, 0, .1)+shift, vect3d(0,0,1))));
+
+//		vect3d shift(.062151346, .0725234, .0412);
+//		CSGNode *box =
+//					new CSGMin(
+//						new CSGMin(
+//							new CSGMin(
+//								new CSGPlane(vect3d(.3, .3, .3)+shift, vect3d(1,0,0)),
+//								new CSGPlane(vect3d(.3, .3, .3)+shift, vect3d(0,1,0)) ),
+//							new CSGMin(
+//								new CSGPlane(vect3d(.3, .3, .3)+shift, vect3d(0,0,1)),
+//								new CSGPlane(vect3d(.7, .7, .7)+shift, vect3d(-1,0,0)) )
+//								),
+//						new CSGMin(
+//							new CSGPlane(vect3d(.7, .7, .7)+shift, vect3d(0,-1,0)),
+//							new CSGPlane(vect3d(.7, .7, .7)+shift, vect3d(0,0,-1)) )
+//					);
+//		n = new CSGMin(new CSGNeg(new CSGCylinder(vect3d(.5, .5, .5)+shift, vect3d(1,0,0), .15)),
+//					new CSGMin(new CSGNeg(new CSGCylinder(vect3d(.5, .5, .5)+shift, vect3d(0,1,0), .15)),
+//						new CSGMax(box, new CSGCylinder(vect3d(.5, .5, .5)+shift, vect3d(0,0,1), .15) ) )) ;
+//		n = new CSGMin(n, new CSGMin(new CSGPlane(vect3d(0, 0, .9)+shift, vect3d(0,0,-1)), new CSGPlane(vect3d(0, 0, .1)+shift, vect3d(0,0,1))));
+		n = new CSGMin(
+			new CSGMin(
+				new CSGMin(
+					new CSGPlane(vect3d(.3, .3, .3), vect3d(1, 0, 0)),
+					new CSGPlane(vect3d(.3, .3, .3), vect3d(0, 1, 0))),
+				new CSGMin(
+					new CSGPlane(vect3d(.3, .3, .3), vect3d(0, 0, 1)),
+					new CSGPlane(vect3d(.7, .7, .7) , vect3d(-1, 0, 0)))
+			),
+			new CSGMin(
+				new CSGPlane(vect3d(.7, .7, .7), vect3d(0, -1, 0)),
+				new CSGPlane(vect3d(.7, .7, .7), vect3d(0, 0, -1)))
+		);
 
 		// $$$$$$ add it $$$$$$
 		csg_root = n;
@@ -191,7 +213,7 @@ void init()
 //	initMCTable();
 
 	gen_iso_ours(); // pregenerate tree
-	gen_iso_ours();
+	//gen_iso_ours();
 
 //	writeFile(g.ourMesh, "output.obj");
 }
@@ -202,6 +224,7 @@ int main(int argc, char **argv)
 	Eigen::MatrixXd V;
 	Eigen::MatrixXi F;
 	convert2EigenMesh(g.ourMesh, V, F);
+	igl::writeOBJ("output.obj", V, F);
 
 	// Options
 	//polyscope::options::autocenterStructures = false;

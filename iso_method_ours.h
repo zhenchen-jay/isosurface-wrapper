@@ -65,14 +65,14 @@ struct TNode
 
 	bool is_outside(vect3d &mine, vect3d &maxe)
 	{
-		if (maxe[0] - mine[0] < 1.5)
+		/*if (maxe[0] - mine[0] < 1.5)
 		{
 			for (int i = 0; i < 3; i++)
 			{
 				if (mine[i] < 0 || maxe[i] > 1)
 					return true;
 			}
-		}
+		}*/
 
 		return false;
 	}
@@ -141,6 +141,11 @@ struct TNode
 					p[0] = (1 - double(x)/OVERSAMPLE_QEF)*verts[0][0] + (double(x)/OVERSAMPLE_QEF)*verts[7][0];
 					p[1] = (1 - double(y)/OVERSAMPLE_QEF)*verts[0][1] + (double(y)/OVERSAMPLE_QEF)*verts[7][1];
 					p[2] = (1 - double(z)/OVERSAMPLE_QEF)*verts[0][2] + (double(z)/OVERSAMPLE_QEF)*verts[7][2];
+					if (x == 0 && y == 1 && z == 1)
+					{
+						int test = 1;
+					}
+
 
 					vect5d pl;
 					csg_root->eval((vect3d&)p, p[3], (vect3d&)pl);
@@ -148,6 +153,21 @@ struct TNode
 					pl[4] = -(p[0]*pl[0] + p[1]*pl[1] + p[2]*pl[2]) + p[3]; // -p*n
 
 					q.combineSelf(vect5d(pl).v);
+
+					ArrayWrapper<double, 4> tmpA;
+					double tmpB[4];
+
+					for (int i = 0; i < 4; i++)
+					{
+						int index = ((2 * 4 + 3 - i) * i) / 2;
+						for (int j = i; j < 4; j++)
+						{
+							tmpA.data[i][j] = q.data[index + j - i];
+							tmpA.data[j][i] = tmpA.data[i][j];
+						}
+
+						tmpB[i] = -q.data[index + 4 - i];
+					}
 
 					mid += p;
 

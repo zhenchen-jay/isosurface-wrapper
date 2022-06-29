@@ -1,5 +1,6 @@
 #pragma once
 #include "cube_arrays.h"
+#include <iostream>
 
 enum TraversalType
 {
@@ -257,11 +258,24 @@ void traverse_face_z(V &v, T &n0, T &n1)
 	}
 }
 
+int edgeVisit = 0;
+int nodeVisit = 0;
+int faceVisit = 0;
 
 // nodes
 template <TraversalType TT, class V, class T>
 void traverse_node(V &v, T &td)
 {
+	nodeVisit++;
+	std::cout << "\nnode visit: " << nodeVisit << std::endl;
+	if (td.n)
+	{
+		std::cout << "bbx: \n" << td.n->verts[0][0] << " " << td.n->verts[0][1] << " " << td.n->verts[0][2] << " " << td.n->verts[0][3] << std::endl;
+		std::cout << td.n->verts[7][0] << " " << td.n->verts[7][1] << " " << td.n->verts[7][2] << " " << td.n->verts[7][3] << std::endl;
+	}
+	
+	if (nodeVisit == 120)
+		std::cout << "debug case" << std::endl;
 	if (!v.on_node(td))
 		return;
 
@@ -276,6 +290,9 @@ void traverse_node(V &v, T &td)
 	{
 		for (Index i; i < 4; i++)
 		{
+			faceVisit++;
+			std::cout << "face visit: " << faceVisit << ", " << i.x << " " << i.y << std::endl;
+
 			traverse_face_x<TT,V,T>(v, c[Index(0,i.x,i.y)], c[Index(1,i.x,i.y)]);
 			traverse_face_y<TT,V,T>(v, c[Index(i.x,0,i.y)], c[Index(i.x,1,i.y)]);
 			traverse_face_z<TT,V,T>(v, c[Index(i.x,i.y,0)], c[Index(i.x,i.y,1)]);
@@ -286,9 +303,14 @@ void traverse_node(V &v, T &td)
 	{
 		for (int i = 0; i < 2; i++)
 		{
+			edgeVisit++;
+			if (edgeVisit == 25)
+				std::cout << "debug case" << std::endl;
 			traverse_edge_x<TT,V,T>(v, c[Index(i,0,0)], c[Index(i,1,0)], c[Index(i,0,1)], c[Index(i,1,1)]);
 			traverse_edge_y<TT,V,T>(v, c[Index(0,i,0)], c[Index(1,i,0)], c[Index(0,i,1)], c[Index(1,i,1)]);
 			traverse_edge_z<TT,V,T>(v, c[Index(0,0,i)], c[Index(1,0,i)], c[Index(0,1,i)], c[Index(1,1,i)]);
+			std::cout << "edge visit: " << edgeVisit << ", tri: " << v.m->tris.size() << std::endl;
+			
 		}
 	}
 
