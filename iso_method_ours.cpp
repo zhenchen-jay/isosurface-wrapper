@@ -125,13 +125,15 @@ bool TNode::changesSign(vect4d *verts, vect4d *edges, vect4d *faces, vect4d &nod
 void TNode::eval(vect3d *grad, TNode *guide)
 {
 	double qef_error = 0;
-	if (std::abs(verts[0][0] - 0.5) < 1e-6 && std::abs(verts[0][1] - 0.25) < 1e-6 && std::abs(verts[0][2] - 0.5) < 1e-6
-		&& std::abs(verts[7][0] - 0.75) < 1e-6 && std::abs(verts[7][1] - 0.5) < 1e-6 && std::abs(verts[7][2] - 0.75) < 1e-6)
+	if (std::abs(verts[0][0] - 0) < 1e-6 && std::abs(verts[0][1] - 0) < 1e-6 && std::abs(verts[0][2] - 0.5) < 1e-6
+		&& std::abs(verts[7][0] - 0.5) < 1e-6 && std::abs(verts[7][1] - 0.5) < 1e-6 && std::abs(verts[7][2] - 1) < 1e-6)
 		std::cout << "debug" << std::endl;
 
 	if (!guide || (guide && guide->children[0] == 0))
 	{
 		tree_cells++;
+//	if(tree_cells == 5)
+//		std::cout << "debug" << std::endl;
 
 		// evaluate QEF samples
 		vertNode(node, grad, qef_error);
@@ -140,6 +142,12 @@ void TNode::eval(vect3d *grad, TNode *guide)
 		for (int i = 0; i < 6; i++)
 			vertFace(faces[i], grad, qef_error, i);
 	}
+
+//	if(tree_cells < 10)
+//		{
+//		std::cout << "current cell: " << tree_cells << std::endl;
+//		printNode();
+//		}
 
 	bool recur;
 
@@ -244,7 +252,7 @@ void TNode::eval(vect3d *grad, TNode *guide)
 	else
 	{
 		// it's a leaf
-		//printf("leaf size = %f\n", cellsize);
+		printf("reach leaf, current cell number = %d\n", tree_cells);
 	}
 }
 

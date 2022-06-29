@@ -1,5 +1,7 @@
 #pragma once
 
+#include <iostream>
+#include <iomanip>
 #include "iso_common.h"
 #include "global.h"
 #include "array2d.h"
@@ -463,7 +465,28 @@ struct TNode
 			plane_pts.push_back(p3);
 			plane_norms.push_back(n3);
 
-				mid += p3;
+
+
+//			const int n = 3;
+//			ArrayWrapper<double, n> A;
+//			double B [ n ];
+//
+//
+//			for (int i = 0; i < n; i++ )
+//				{
+//				int index = ( ( 2 * n + 3 - i ) * i ) / 2;
+//				for (int j = i; j < n; j++ )
+//					{
+//					A.data [ i ] [ j ] = q.data [ index + j - i ];
+//					A.data [ j ] [ i ] = A.data [ i ] [ j ];
+//					}
+//
+//				B [ i ] = -q.data [ index + n - i ];
+//				}
+
+
+			mid += p3;
+
 			}
 		}
 		mid /= (OVERSAMPLE_QEF+1)*(OVERSAMPLE_QEF+1);
@@ -484,13 +507,24 @@ struct TNode
 
 			B [ i ] = -q.data [ index + n - i ];
 		}
+//	for(int i = 0; i < n; i++)
+//		{
+//		for(int j = 0; j < n; j++)
+//			{
+//			std::cout << A.data[i][j] << "\t";
+//			}
+//		std::cout << "\n";
+//		}
+//	for(int i = 0; i < n; i++)
+//		std::cout << B[i] << "\t";
+//	std::cout << std::endl;
 
 		// minimize QEF constrained to cell
 		const double border = BORDER * (verts[7][0]-verts[0][0]);
 		bool is_out = true;
 		double err = 1e30;
-		vect2f mine(verts[cube_face2vert[which_face][0]][xi] + border, verts[cube_face2vert[which_face][0]][yi] + border);
-		vect2f maxe(verts[cube_face2vert[which_face][2]][xi] - border, verts[cube_face2vert[which_face][2]][yi] - border);
+		vect2d mine(verts[cube_face2vert[which_face][0]][xi] + border, verts[cube_face2vert[which_face][0]][yi] + border);
+		vect2d maxe(verts[cube_face2vert[which_face][2]][xi] - border, verts[cube_face2vert[which_face][2]][yi] - border);
 		vect3d p3;
 
 		for (int cell_dim = 2; cell_dim >= 0 && is_out; cell_dim--)
@@ -526,7 +560,7 @@ struct TNode
 				{
 					int dir = edge / 2;
 					int side = edge % 2;
-					vect2f corners[2] = {mine, maxe};
+					vect2d corners[2] = {mine, maxe};
 
 					// build constrained system
 					ArrayWrapper<double, n+1> AC;
@@ -576,7 +610,7 @@ struct TNode
 			{
 				for (int vertex = 0; vertex < 4; vertex++)
 				{
-					vect2f corners[2] = {mine, maxe};
+					vect2d corners[2] = {mine, maxe};
 
 					// build constrained system
 					ArrayWrapper<double, n+2> AC;
@@ -676,9 +710,9 @@ struct TNode
 		QEFNormal<double, 2> q;
 		q.zero();
 
-		vect2f mid = 0;
+		vect2d mid = 0;
 
-		vector<vect2f> plane_norms, plane_pts;
+		vector<vect2d> plane_norms, plane_pts;
 
 		vect4d &c0 = verts[cube_edge2vert[which_edge][0]], &c1 = verts[cube_edge2vert[which_edge][1]];
 		for (int i = 0; i <= OVERSAMPLE_QEF; i++)
@@ -690,8 +724,8 @@ struct TNode
 
 			vect3d g3;
 			csg_root->eval((vect3d&)p4, p4[3], (vect3d&)g3);
-			vect2f n2(g3[xi], -1);
-			vect2f p2(p4[xi], p4[3]);
+			vect2d n2(g3[xi], -1);
+			vect2d p2(p4[xi], p4[3]);
 			vect3d pl = n2;
 			pl[2] = -(p2*n2);
 
@@ -727,7 +761,7 @@ struct TNode
 		double err = 1e30;
 		const double vmin = verts[cube_edge2vert[which_edge][0]][xi] + border;
 		const double vmax = verts[cube_edge2vert[which_edge][1]][xi] - border;
-		vect2f p2;
+		vect2d p2;
 
 		for (int cell_dim = 1; cell_dim >= 0 && is_out; cell_dim--)
 		{
@@ -791,7 +825,7 @@ struct TNode
 							rvalue [ i ] += inv.data [ j ] [ i ] * BC [ j ];
 					}
 
-					vect2f pc(rvalue[0], rvalue[1]);
+					vect2d pc(rvalue[0], rvalue[1]);
 				
 					// check bounds
 					double e = calcError(pc, plane_norms, plane_pts);
@@ -831,6 +865,23 @@ struct TNode
 
 		qef_error += err;
 		
+	}
+
+	// this is just for debug
+	void printNode()
+	{
+	std::cout << "\nnode info: " << std::endl;
+	std::cout << "vertex info: \n" << std::endl;
+	for(int i = 0; i < 8; i++)
+		std::cout << "vert node: " << i << "\t" << std::right << std::setw(8) << verts[i][0] << "\t" << std::right << std::setw(8) << verts[i][1] << "\t" << std::right << std::setw(8) << verts[i][2] << "\t" << std::right << std::setw(8) << verts[i][3] << std::endl;
+	std::cout << "\n";
+	for(int i = 0; i < 12; i++)
+		std::cout << "edge node: " << i << "\t" << std::right << std::setw(8) << edges[i][0] << "\t" << std::right << std::setw(8) << edges[i][1] << "\t" << std::right << std::setw(8) << edges[i][2] << "\t" << std::right << std::setw(8) << edges[i][3] << std::endl;
+	std::cout << "\n";
+	for(int i = 0; i < 6; i++)
+		std::cout << "face node: " << i << "\t"  << std::right << std::setw(8) << faces[i][0] << "\t" << std::right << std::setw(8) << faces[i][1] << "\t" << std::right << std::setw(8) << faces[i][2] << "\t" << std::right << std::setw(8) << faces[i][3] << std::endl;
+	std::cout << "\n";
+	std::cout << "node vert: "  << std::right << std::setw(8) << node[0] << "\t" << std::right << std::setw(8) << node[1] << "\t" << std::right << std::setw(8) << node[2] << "\t" << std::right << std::setw(8) << node[3] << std::endl;
 	}
 };
 

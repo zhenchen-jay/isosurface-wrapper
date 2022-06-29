@@ -18,7 +18,7 @@ struct Widget;
 
 struct Mesh
 {
-	vector< vect<3, vect3f> > tris;
+	vector< vect<3, vect3d> > tris;
 #ifdef JOIN_VERTS
 	vector< vect<3, TopoEdge> > topoTris;
 #endif

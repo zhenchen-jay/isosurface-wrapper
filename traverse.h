@@ -273,9 +273,7 @@ void traverse_node(V &v, T &td)
 		std::cout << "bbx: \n" << td.n->verts[0][0] << " " << td.n->verts[0][1] << " " << td.n->verts[0][2] << " " << td.n->verts[0][3] << std::endl;
 		std::cout << td.n->verts[7][0] << " " << td.n->verts[7][1] << " " << td.n->verts[7][2] << " " << td.n->verts[7][3] << std::endl;
 	}
-	
-	if (nodeVisit == 120)
-		std::cout << "debug case" << std::endl;
+
 	if (!v.on_node(td))
 		return;
 
@@ -285,6 +283,19 @@ void traverse_node(V &v, T &td)
 		td.gen_trav(c[i], i);
 		traverse_node<TT,V,T>(v, c[i]);
 	}
+
+	if (nodeVisit == 62)
+		{
+		std::cout << "debug case" << std::endl;
+		c[0].n->printNode();
+		c[1].n->printNode();
+		c[2].n->printNode();
+		c[3].n->printNode();
+		c[4].n->printNode();
+		c[5].n->printNode();
+		c[6].n->printNode();
+		c[7].n->printNode();
+		}
 
 	if (TT >= trav_face)
 	{
@@ -304,8 +315,14 @@ void traverse_node(V &v, T &td)
 		for (int i = 0; i < 2; i++)
 		{
 			edgeVisit++;
-			if (edgeVisit == 25)
-				std::cout << "debug case" << std::endl;
+		if (edgeVisit == 31)
+			{
+			std::cout << "debug case" << std::endl;
+			c[Index(i, 0, 0)].n->printNode();
+			c[Index(i, 1, 0)].n->printNode();
+			c[Index(i, 0, 1)].n->printNode();
+			c[Index(i, 1, 1)].n->printNode();
+			}
 			traverse_edge_x<TT,V,T>(v, c[Index(i,0,0)], c[Index(i,1,0)], c[Index(i,0,1)], c[Index(i,1,1)]);
 			traverse_edge_y<TT,V,T>(v, c[Index(0,i,0)], c[Index(1,i,0)], c[Index(0,i,1)], c[Index(1,i,1)]);
 			traverse_edge_z<TT,V,T>(v, c[Index(0,0,i)], c[Index(1,0,i)], c[Index(0,1,i)], c[Index(1,1,i)]);
