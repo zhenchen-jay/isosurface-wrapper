@@ -82,6 +82,10 @@ option(LIBIGL_COPYLEFT_CGAL       "Build target igl_copyleft::cgal"       OFF)
 option(LIBIGL_RESTRICTED_TRIANGLE "Build target igl_restricted::triangle" ON)
 include(libigl)
 
+#CLI11
+message("build with CLI11")
+include(CLI11)
+
 
 file(GLOB SRCFILES  
 *.hpp
@@ -101,5 +105,6 @@ target_link_libraries(${PROJECT_NAME}_bin PUBLIC
         igl_copyleft::comiso 
         igl_copyleft::tetgen
         polyscope 
+        CLI11::CLI11
         )
 

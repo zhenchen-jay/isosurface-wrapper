@@ -5,6 +5,8 @@
 
 #include <map>
 #include <stdio.h>
+#include <Eigen/Dense>
+#include <igl/AABB.h>
 
 using namespace std;
 
@@ -214,5 +216,77 @@ struct CSGCylinder : public CSGNode
 		else
 			grad(0,0,1);
 		val = radius - l;
+	}
+};
+
+struct GeneralShape : public CSGNode
+{
+	GeneralShape(Eigen::MatrixXf& V, Eigen::MatrixXi& F, float eps)
+	{
+		_V = V;
+		_F = F;
+
+		// shrink and translate mesh to the box [0, 0, 0], and [1, 1, 1]
+		Eigen::Vector3f minCorner = V.colwise().minCoeff();
+		Eigen::Vector3f maxCorner = V.colwise().maxCoeff();
+		_center = (maxCorner + minCorner) / 2;
+		Eigen::Vector3f tarCenter;
+		tarCenter << 0.5, 0.5, 0.5;
+
+		float diag = (maxCorner - minCorner).norm();
+		float max = (maxCorner - minCorner).maxCoeff();
+		_ratio = float(1.) / (max + 4 * eps * diag);
+
+		for (int i = 0; i < _V.rows(); i++)
+			_V.row(i) = _V.row(i) - _center.transpose();		// move center to [0, 0, 0]
+		_V = _V * _ratio;
+		_eps = eps * diag * _ratio;		// within [-1/2, -1/2, -1/2] and [1/2, 1/2, 1/2]
+		for (int i = 0; i < _V.rows(); i++)
+			_V.row(i) = _V.row(i) + tarCenter.transpose();	// move center to [1/2, 1/2, 1/2]
+
+		minCorner = _V.colwise().minCoeff();
+		maxCorner = _V.colwise().maxCoeff();
+
+		std::cout << minCorner.transpose() << " " << maxCorner.transpose() << ", eps: " << _eps << ", input: " << eps * diag << std::endl;
+
+		_tree.init(_V, _F);
+
+		float lower_bound = std::numeric_limits<float>::min();
+		float upper_bound = std::numeric_limits<float>::max();
+		const float max_abs = std::max(std::abs(lower_bound), std::abs(upper_bound));
+		up_sqr_d = std::pow(max_abs, 2.0);
+		low_sqr_d = std::pow(std::max(max_abs - (upper_bound - lower_bound), (float)0.0), 2.0);
+	}
+
+	Eigen::MatrixXf _V;
+	Eigen::MatrixXi _F;
+	Eigen::Vector3f _center;
+	float _ratio;
+	igl::AABB<Eigen::MatrixXf, 3> _tree;
+	float _eps;
+	float up_sqr_d;
+	float low_sqr_d;
+
+	virtual void eval(vect3f& pt, float& val, vect3f& grad)
+	{
+		Eigen::Matrix<float, 1, 3> p, c;
+		p << pt[0], pt[1], pt[2];
+		int i;
+		float sqrd = _tree.squared_distance(_V, _F, p, low_sqr_d, up_sqr_d, i, c);
+
+		if (sqrd >= up_sqr_d || sqrd < low_sqr_d)
+			val = std::numeric_limits<float>::quiet_NaN();
+		else
+			val = std::sqrt(sqrd) - _eps;
+
+		grad[0] = p[0] - c[0];
+		grad[1] = p[1] - c[1];
+		grad[2] = p[2] - c[2];
+
+		float l = grad.length();
+		if (l > 1e-9)
+			grad = grad / l;
+		else
+			grad(0, 0, 1);
 	}
 };
