@@ -3,3 +3,4 @@ build_Xcode/*
 cmake-build-*/*
 
 .DS_Store
+.obj
