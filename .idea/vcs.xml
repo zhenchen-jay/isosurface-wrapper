@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="VcsDirectoryMappings">
+    <mapping directory="" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/build/_deps/cli11-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/build/_deps/comiso-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/build/_deps/eigen-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/build/_deps/libigl-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/build/_deps/polyscope-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/build/_deps/polyscope-src/deps/glfw" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/build/_deps/polyscope-src/deps/happly" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/build/_deps/polyscope-src/deps/imgui/imgui" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/build/_deps/predicates-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/build/_deps/tetgen-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/build/_deps/triangle-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/build_Xcode/_deps/comiso-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/build_Xcode/_deps/eigen-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/build_Xcode/_deps/libigl-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/build_Xcode/_deps/polyscope-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/build_Xcode/_deps/polyscope-src/deps/glfw" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/build_Xcode/_deps/polyscope-src/deps/happly" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/build_Xcode/_deps/polyscope-src/deps/imgui/imgui" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/build_Xcode/_deps/predicates-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/build_Xcode/_deps/tetgen-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/build_Xcode/_deps/triangle-src" vcs="Git" />
+  </component>
+</project>

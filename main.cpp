@@ -24,6 +24,7 @@ double BORDER = (1.0 / 16.0);
 int DEPTH_MAX = 7; // 7
 int DEPTH_MIN = 4; // 4
 int FIND_ROOT_DEPTH = 0;
+bool SIGNED_DISTANCE = false;
 
 
 CSGNode *csg_root = 0;
@@ -142,7 +143,7 @@ static void convert2EigenMesh(Mesh &m, Eigen::MatrixXd& V, Eigen::MatrixXi& F)
 		F.row(i) = faceList[i];
 }
 
-void init(std::string loadFile = "", float eps = 0)
+void init(std::string loadFile = "", float eps = 0, bool signedDistance = false)
 {
 	// define/load function
 	if (!csg_root)
@@ -184,7 +185,7 @@ void init(std::string loadFile = "", float eps = 0)
 				std::cout << "load file failed in path: " << loadFile << std::endl;
 				exit(EXIT_FAILURE);
 			}
-			auto nv = new GeneralShape(V, F, eps);
+			auto nv = new GeneralShape(V, F, eps, signedDistance);
 			initcenter = nv->_center;
 			scaleratio = nv->_ratio;
 			n = nv;
@@ -234,6 +235,7 @@ int main(int argc, char **argv)
 	app.add_option("--minDepth", minDepth, "min depth for octree");
 	app.add_option("--maxDepth", maxDepth, "max depth for octree");
 	app.add_option("-o,--output", savePath, "save path, optional, defualt is inputMesh_offset_minDepth_maxDepth.obj if CSG disabled, otherwise output_CSG.obj");
+	app.add_flag("--signedDistance", SIGNED_DISTANCE);
 	app.add_flag("--csg", isCSG, "Show CSG result");
 
 	try {
@@ -260,9 +262,9 @@ int main(int argc, char **argv)
 			DEPTH_MAX = maxDepth;
 		if (DEPTH_MAX < DEPTH_MIN)
 			DEPTH_MAX = DEPTH_MIN;
-		std::cout << "depth information: " << DEPTH_MIN << " " << DEPTH_MAX << std::endl;
+		std::cout << "depth information: " << DEPTH_MIN << " " << DEPTH_MAX  << ", signed distance: " << SIGNED_DISTANCE << std::endl;
 
-		::init(inputPath, offsetDist);
+		::init(inputPath, offsetDist, SIGNED_DISTANCE);
 		if (savePath == "")
 		{
 			savePath = inputPath;

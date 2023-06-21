@@ -7,6 +7,11 @@
 #include <stdio.h>
 #include <Eigen/Dense>
 #include <igl/AABB.h>
+#include <igl/fast_winding_number.h>
+#include <igl/per_face_normals.h>
+#include <igl/per_vertex_normals.h>
+#include <igl/per_edge_normals.h>
+#include <igl/pseudonormal_test.h>
 
 using namespace std;
 
@@ -221,7 +226,7 @@ struct CSGCylinder : public CSGNode
 
 struct GeneralShape : public CSGNode
 {
-	GeneralShape(Eigen::MatrixXf& V, Eigen::MatrixXi& F, float eps)
+	GeneralShape(Eigen::MatrixXf& V, Eigen::MatrixXi& F, float eps, bool signedDistance)
 	{
 		_V = V;
 		_F = F;
@@ -235,7 +240,7 @@ struct GeneralShape : public CSGNode
 
 		float diag = (maxCorner - minCorner).norm();
 		float max = (maxCorner - minCorner).maxCoeff();
-		_ratio = float(1.) / (max + 4 * eps * diag);
+		_ratio = float(1.) / (max + 4 * std::abs(eps) * diag);
 
 		for (int i = 0; i < _V.rows(); i++)
 			_V.row(i) = _V.row(i) - _center.transpose();		// move center to [0, 0, 0]
@@ -256,32 +261,52 @@ struct GeneralShape : public CSGNode
 		const float max_abs = std::max(std::abs(lower_bound), std::abs(upper_bound));
 		up_sqr_d = std::pow(max_abs, 2.0);
 		low_sqr_d = std::pow(std::max(max_abs - (upper_bound - lower_bound), (float)0.0), 2.0);
+
+		igl::fast_winding_number(_V.template cast<float>().eval(), _F, 2, _fwnBVH);
+
+		igl::per_face_normals(_V,_F,_FN);
+		igl::per_vertex_normals(_V,_F,igl::PER_VERTEX_NORMALS_WEIGHTING_TYPE_ANGLE,_FN,_VN);
+		igl::per_edge_normals(
+				_V,_F,igl::PER_EDGE_NORMALS_WEIGHTING_TYPE_UNIFORM,_FN,_EN,_E,_EMAP);
+
+
+		_signedDistance = signedDistance;
 	}
 
-	Eigen::MatrixXf _V;
-	Eigen::MatrixXi _F;
+	Eigen::MatrixXf _V, _FN, _EN, _VN;
+	Eigen::MatrixXi _F, _E, _EMAP;
 	Eigen::Vector3f _center;
+	igl::FastWindingNumberBVH _fwnBVH;
 	float _ratio;
 	igl::AABB<Eigen::MatrixXf, 3> _tree;
 	float _eps;
 	float up_sqr_d;
 	float low_sqr_d;
+	bool _signedDistance;
 
 	virtual void eval(vect3f& pt, float& val, vect3f& grad)
 	{
-		Eigen::Matrix<float, 1, 3> p, c;
+		Eigen::Matrix<float, 1, 3> p, c, n;
 		p << pt[0], pt[1], pt[2];
 		int i;
 		float sqrd = _tree.squared_distance(_V, _F, p, low_sqr_d, up_sqr_d, i, c);
+		float s = 1;
+
+		if(_signedDistance)
+		{
+			float w = fast_winding_number(_fwnBVH, 2, p.template cast<float>().eval());
+        	s = 1.-2.*std::abs(w);
+//			 igl::pseudonormal_test(_V,_F,_FN,_VN,_EN,_EMAP,p,i,c,s,n);
+		}
 
 		if (sqrd >= up_sqr_d || sqrd < low_sqr_d)
 			val = std::numeric_limits<float>::quiet_NaN();
 		else
-			val = std::sqrt(sqrd) - _eps;
+			val = s * std::sqrt(sqrd) - _eps;
 
-		grad[0] = p[0] - c[0];
-		grad[1] = p[1] - c[1];
-		grad[2] = p[2] - c[2];
+		grad[0] = s * (p[0] - c[0]);
+		grad[1] = s * (p[1] - c[1]);
+		grad[2] = s * (p[2] - c[2]);
 
 		float l = grad.length();
 		if (l > 1e-9)
